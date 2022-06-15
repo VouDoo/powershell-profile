@@ -1,2 +1,3 @@
-# profiles
-Shell profiles
+# Shell Profiles
+
+- [PowerShell](./powershell)
