@@ -1,6 +1,6 @@
 param (
     [Parameter()]
-    [swtich] $NonInteractive
+    [switch] $NonInteractive
 )
 
 #region     Set my environment
