@@ -33,9 +33,9 @@ _We recommend to use a terminal that supports modern fonts (e.g. [Windows Termin
 
 Open a PowerShell Core console (`pwsh.exe`) and execute this one-liner:
 
-    ```powershell
-    iex ((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/VouDoo/profiles/master/powershell/install.ps1"))
-    ```
+  ```ps1
+  iex ((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/VouDoo/profiles/master/powershell/install.ps1"))
+  ```
 
 ### Edit `myenv`
 
