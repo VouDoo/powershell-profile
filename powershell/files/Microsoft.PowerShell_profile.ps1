@@ -85,7 +85,7 @@ if (Test-Path -Path $ChocolateyProfile) {
 #endregion  Import Chocolatey profile
 
 #region     Run in user interactive session
-if (Test-Interactive -and -not $env:ProfileInstallation) {
+if ((Test-Interactive) -and (-not $env:ProfileInstallation)) {
     #region     Set aliases for my text editor
     ("edit", "notepad", "vi", "vim", "nano") | ForEach-Object {
         New-Alias -Name $_ -Value $MyEnv.TextEditor -Description "Open my text editor" -Option ReadOnly
