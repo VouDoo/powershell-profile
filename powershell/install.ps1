@@ -12,7 +12,7 @@ $ProfileDirectoryPath = "$HOME\Documents\PowerShell"
 $GitHubBaseUri = "https://raw.githubusercontent.com/VouDoo/profiles/main/powershell/files"
 
 # Create profile directory if not exists
-if (Test-Path -Path $ProfileDirectoryPath -PathType Container) {
+if (-not (Test-Path -Path $ProfileDirectoryPath -PathType Container)) {
     New-Item -Path $ProfileDirectoryPath -ItemType Directory
 }
 
@@ -27,4 +27,4 @@ Invoke-WebRequest -Uri "$GitHubBaseUri/myenv.psd1" -OutFile "$ProfileDirectoryPa
 Install-OhMyPosh
 Install-MyModules
 
-Write-Host "Profile installation complete.`n Close this console and re-open a new one :)" -ForegroundColor Green
+Write-Host "Profile installation complete.`nClose this console and re-open a new one :)" -ForegroundColor Green
