@@ -11,12 +11,12 @@ Content:
 
 ## Instructions
 
-_Theses instructions are for Windows base systems._
+_These instructions are for Windows base systems._
 _Please, adapt them if you are using another operating system._
 
 ### Install PowerShell Core
 
-If PowerShell Core is not present on your system, you can install it by following this documentation:
+If PowerShell Core is not present on your system, please read this documentation:
 [Installing PowerShell on Windows](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows).
 
 ### Install winget
