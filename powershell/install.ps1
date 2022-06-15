@@ -21,8 +21,7 @@ Invoke-WebRequest -Uri "$GitHubBaseUri/requirements.psd1" -OutFile "$ProfileDire
 Invoke-WebRequest -Uri "$GitHubBaseUri/myenv.psd1" -OutFile "$ProfileDirectoryPath\myenv.psd1"
 
 # Refresh profile
-$env:ProfileInstallation = $true
-& $PROFILE
+& $PROFILE -NonInteractive
 
 Install-OhMyPosh
 Install-MyModules

@@ -1,3 +1,8 @@
+param (
+    [Parameter()]
+    [swtich] $NonInteractive
+)
+
 #region     Set my environment
 Set-Variable -Name MyEnv -Scope Script -Option ReadOnly -Value (Import-PowerShellDataFile -Path "$PSScriptRoot\myenv.psd1")
 #endregion  Set my environment
@@ -85,7 +90,7 @@ if (Test-Path -Path $ChocolateyProfile) {
 #endregion  Import Chocolatey profile
 
 #region     Run in user interactive session
-if ((Test-Interactive) -and (-not $env:ProfileInstallation)) {
+if (Test-Interactive -and -not $NonInteractive.IsPresent) {
     #region     Set aliases for my text editor
     ("edit", "notepad", "vi", "vim", "nano") | ForEach-Object {
         New-Alias -Name $_ -Value $MyEnv.TextEditor -Description "Open my text editor" -Option ReadOnly
