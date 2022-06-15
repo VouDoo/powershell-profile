@@ -77,9 +77,13 @@ function Get-Signature {
 #endregion  Define helper functions
 
 #region     Set Aliases for helper functions
-New-Alias -Name grep -Value Out-Grep  -Description "grep like in *nix!" -Option ReadOnly
-New-Alias -Name ws -Value Use-Workspace -Description "Change directory to my workspace" -Option ReadOnly
-New-Alias -Name signature -Value Get-Signature -Description "Get my signature" -Option ReadOnly
+$script:AliasCommonParams = @{
+    ErrorAction = "SilentlyContinue"
+    Option      = "ReadOnly"
+}
+New-Alias @AliasCommonParams -Name grep -Value Out-Grep -Description "grep like in *nix!"
+New-Alias @AliasCommonParams -Name ws -Value Use-Workspace -Description "Change directory to my workspace"
+New-Alias @AliasCommonParams -Name signature -Value Get-Signature -Description "Get my signature"
 #endregion  Set Aliases for helper functions
 
 #region     Import Chocolatey profile
@@ -93,7 +97,7 @@ if (Test-Path -Path $ChocolateyProfile) {
 if (Test-Interactive -and -not $NonInteractive.IsPresent) {
     #region     Set aliases for my text editor
     ("edit", "notepad", "vi", "vim", "nano") | ForEach-Object {
-        New-Alias -Name $_ -Value $MyEnv.TextEditor -Description "Open my text editor" -Option ReadOnly
+        New-Alias @AliasCommonParams -Name $_ -Value $MyEnv.TextEditor -Description "Open my text editor"
     }
     #endregion  Set aliases for my text editor
 
@@ -108,11 +112,11 @@ if (Test-Interactive -and -not $NonInteractive.IsPresent) {
     # Import module
     Import-Module -Name MyRemoteManager
     # Create aliases
-    New-Alias -Name co -Value Invoke-MyRMConnection -Description "Invoke MyRemoteManager connection" -Option ReadOnly
-    New-Alias -Name coTest -Value Test-MyRMConnection -Description "Test MyRemoteManager connection" -Option ReadOnly
-    New-Alias -Name coGet -Value Get-MyRMConnection -Description "Get MyRemoteManager connections" -Option ReadOnly
-    New-Alias -Name coAdd -Value Add-MyRMConnection -Description "Add MyRemoteManager connection" -Option ReadOnly
-    New-Alias -Name coRm -Value Remove-MyRMConnection -Description "Remove MyRemoteManager connection" -Option ReadOnly
+    New-Alias @AliasCommonParams -Name co -Value Invoke-MyRMConnection -Description "Invoke MyRemoteManager connection"
+    New-Alias @AliasCommonParams -Name coTest -Value Test-MyRMConnection -Description "Test MyRemoteManager connection"
+    New-Alias @AliasCommonParams -Name coGet -Value Get-MyRMConnection -Description "Get MyRemoteManager connections"
+    New-Alias @AliasCommonParams -Name coAdd -Value Add-MyRMConnection -Description "Add MyRemoteManager connection"
+    New-Alias @AliasCommonParams -Name coRm -Value Remove-MyRMConnection -Description "Remove MyRemoteManager connection"
     #endregion  Set MyRemoteManager module
 
     #region     Set Posh modules
