@@ -8,7 +8,7 @@
 #>
 
 $ProfileDirectoryPath = "$HOME\Documents\PowerShell"
-$GitHubBaseUri = "https://raw.githubusercontent.com/VouDoo/profiles/main/powershell/files"
+$GitHubBaseUri = "https://raw.githubusercontent.com/VouDoo/profiles/main/files"
 
 # Create profile directory if not exists
 if (-not (Test-Path -Path $ProfileDirectoryPath -PathType Container)) {
