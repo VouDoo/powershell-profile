@@ -8,5 +8,5 @@
     Workspace     = "~\Documents\Workspace"
     TextEditor    = "code.cmd"  # VS Code
     # Oh My Posh
-    OhMyPoshTheme = "half-life"  # Available themes: https://ohmyposh.dev/docs/themes
+    OhMyPoshTheme = "atomic"  # Available themes: https://ohmyposh.dev/docs/themes
 }

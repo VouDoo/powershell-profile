@@ -1,52 +1,36 @@
+<#
+
+    .SYNOPSIS
+    PowerShell profile.
+
+    .DESCRIPTION
+    This file is a startup script to customize the PowerShell environment and add session-specific elements to every PowerShell session.
+
+    .NOTES
+    This profile is designed for Windows only.
+#>
+
 param (
     [Parameter()]
     [switch] $NonInteractive
 )
 
 #region     Set my environment
-Set-Variable -Name MyEnv -Scope Script -Option ReadOnly -Value (Import-PowerShellDataFile -Path "$PSScriptRoot\myenv.psd1")
+Set-Variable -Name MyEnv -Scope Script -Option ReadOnly -Value (Import-PowerShellDataFile -Path "$PSScriptRoot\Microsoft.PowerShell_myenv.psd1")
 #endregion  Set my environment
 
 #region     Define helper functions
-function Test-Winget {
-    # Test if Windows Package Manager CLI (aka. winget) is installed
-    if (Get-Command -Name "winget" -ErrorAction SilentlyContinue) { $true } else { $false }
+function Test-Interactive {
+    # Test if the session is interactive
+    [Environment]::GetCommandLineArgs() -notcontains "-NonInteractive"
 }
-function Install-PSCore {
-    # Install the latest version of PowerShell Core
-    if (Test-Winget) { & winget install --id Microsoft.Powershell --source winget }
-    else {
-        # Fall back on the old fashion way to install PowerShell
-        $ScriptUri = "https://aka.ms/install-powershell.ps1"
-        Invoke-Expression -Command "& { $(Invoke-RestMethod -Uri $ScriptUri) } -UseMSI"
-    }
-}
-function Install-Chocolatey {
-    # Install the latest version of Chocolatey
-    # Note that this function can be interpreted as a threat for some anti-virus programs (e.g. McAfee)
-    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-    (New-Object -TypeName System.Net.WebClient).DownloadString("https://chocolatey.org/install.ps1") | Invoke-Expression
-}
-function Install-OhMyPosh {
-    # Install latest version of Oh My Posh
-    if (Test-Winget) { & winget install --id JanDeDobbeleer.OhMyPosh }
-    else {
-        Write-Error -Message "Windows Package Manager CLI (aka. winget) must be installed to install Oh My Posh."
-    }
-}
-function Set-OhMyPoshtheme {
-    # Set Oh My Posh theme for the current PowerShell session
-    $Config = "{0}\{1}.omp.json" -f $env:POSH_THEMES_PATH, $MyEnv.OhMyPoshTheme
-    & oh-my-posh init pwsh --config "$Config" | Invoke-Expression
-}
-function Install-MyModules {
-    # Install modules from the requirements.psd1 file
-    if (-not (Get-Module -Name PSDepend -ListAvailable)) {
-        Install-Module -Name PSDepend -Repository PSGallery
-    }
-    Import-Module -Name PSDepend
-    Invoke-PSDepend -Path "$PSScriptRoot\requirements.psd1" -Install -Import -Force
+function Test-Command {
+    # Test if a command is present
+    param (
+        [Parameter(Position = 0)]
+        [string] $Command
+    )
+    if (Get-Command -Name $Command -ErrorAction SilentlyContinue) { $true } else { $false }
 }
 function Update-EnvPath {
     # Refresh PATH environment variable
@@ -56,9 +40,71 @@ function Update-EnvPath {
     }
     $env:Path = $Paths -join $Separator
 }
-function Test-Interactive {
-    # Test if the session is interactive
-    [Environment]::GetCommandLineArgs() -notcontains "-NonInteractive"
+function Install-PSCore {
+    # Install the latest version of PowerShell Core
+    # Official installation documentation: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
+    if (Test-Command "winget") { & winget install --id Microsoft.Powershell --source winget }
+    else {
+        # Fall back on the old fashion way to install PowerShell
+        $ScriptUri = "https://aka.ms/install-powershell.ps1"
+        Invoke-Expression -Command "& { $(Invoke-RestMethod -Uri $ScriptUri) } -UseMSI"
+    }
+}
+function Install-Chocolatey {
+    # Install the latest version of Chocolatey
+    # Official installation documentation: https://chocolatey.org/install
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    (New-Object -TypeName System.Net.WebClient).DownloadString("https://chocolatey.org/install.ps1") | Invoke-Expression
+}
+function Install-Scoop {
+    # Install the latest version of Scoop
+    # Official installation documentation: https://scoop.sh/
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+    Invoke-RestMethod -Uri get.scoop.sh | Invoke-Expression
+}
+function Install-OhMyPosh {
+    # Install latest version of Oh My Posh
+    # Official installation documentation: https://ohmyposh.dev/docs/installation/windows
+    param (
+        [Parameter(HelpMessage = "Choose a method to install Oh My Posh")]
+        [ValidateSet("winget", "scoop", "manual")]
+        [string] $Method = "winget"
+    )
+    switch ($Method) {
+        "winget" {
+            if (Test-Command "winget") { & winget install JanDeDobbeleer.OhMyPosh -s winget }
+            else {
+                Write-Error -Message "Windows Package Manager CLI (aka. winget) must be installed to install Oh My Posh."
+            }
+        }
+        "scoop" {
+            if (Test-Command "scoop") { & scoop install https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/oh-my-posh.json }
+            else {
+                Write-Error -Message "scoop must be installed to install Oh My Posh."
+            }
+        }
+        "manual" {
+            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+            (New-Object -TypeName System.Net.WebClient).DownloadString('https://ohmyposh.dev/install.ps1') | Invoke-Expression
+        }
+        Default {
+            Write-Error -Message "Invalid method to install Oh My Posh."
+        }
+    }
+}
+function Set-OhMyPoshTheme {
+    # Set Oh My Posh theme for the current PowerShell session
+    $Config = "{0}\{1}.omp.json" -f $env:POSH_THEMES_PATH, $MyEnv.OhMyPoshTheme
+    & oh-my-posh init pwsh --config "$Config" | Invoke-Expression
+}
+function Install-MyModules {
+    # Install modules from the requirements file
+    if (-not (Get-Module -Name PSDepend -ListAvailable)) {
+        Install-Module -Name PSDepend -Repository PSGallery
+    }
+    Import-Module -Name PSDepend
+    Invoke-PSDepend -Path "$PSScriptRoot\Microsoft.PowerShell_modules.psd1" -Install -Import -Force
 }
 function Out-Grep {
     # grep like in *nix systems
@@ -119,12 +165,12 @@ if (Test-Interactive -and -not $NonInteractive.IsPresent) {
     New-Alias @AliasCommonParams -Name coRm -Value Remove-MyRMConnection -Description "Remove MyRemoteManager connection"
     #endregion  Set MyRemoteManager module
 
-    #region     Set Posh modules
-    # Import modules
+    #region     Set Posh module
+    # Import module
     Import-Module -Name posh-git
     # Set Oh My Posh theme
-    Set-OhMyPoshtheme
-    #endregion  Set Posh modules
+    Set-OhMyPoshTheme
+    #endregion  Set Posh module
 
     #region     Import other modules
     Import-Module -Name Terminal-Icons
